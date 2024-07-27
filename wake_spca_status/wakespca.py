@@ -1,11 +1,12 @@
-"""Loading and parsing data from wakespca.org website."""
-
 import logging
 
+import aiohttp
 from bs4 import BeautifulSoup
-import requests
 
 _LOGGER = logging.getLogger(__name__)
+
+
+####################################################################################################
 
 PETBRIDGE_URL_BASE = "https://petbridge.org/animals/animals-all-responsive.php"
 
@@ -13,24 +14,22 @@ ADOPTABLE_DOGS_QUERY_PARAMS = "?ClientID=24&Species=Dog"
 RECENTLY_ADOPTED_DOGS_QUERY_PARAMS = "?ClientID=24&Species=Dog&Status=Adopted"
 
 
+####################################################################################################
+
+
 class WakeSpcaAnimal:
-    """Representation of an animal at WakeSPCA."""
+    """Wake SPCA Animal representation."""
 
     def __init__(self, bs4_entry) -> None:
-        """Set up the model from the bs4 entry."""
+        """Construct the instance."""
 
-        # self.id = animal_json["id"]
-        # self.name = animal_json["name"]
-        # self.status = animal_json["status"]
-        # self.description = animal_json["description"]
-
-        # self.raw = animal_json
-
-        # dog name
-        dog_name_node = bs4_entry.find("span", attrs={"class": "results_animal_name"})
-        if not dog_name_node:
-            raise InvalidConfigData("Dog name node not found")
-        self.name = dog_name_node.text
+        # name
+        animal_name_node = bs4_entry.find(
+            "span", attrs={"class": "results_animal_name"}
+        )
+        if not animal_name_node:
+            raise Exception("Animal name node not found")
+        self.name = animal_name_node.text
 
         # foster care
         location_node = bs4_entry.find(
@@ -47,53 +46,71 @@ class WakeSpcaAnimal:
         )
 
 
-class WakeSpca:
-    """Util class to connect to and parse the wakespca.org website."""
+class WakeSpcaClient:
+    """Handle all data pulls from wakespca.org."""
 
-    def _get_dogs_page(self, params) -> list[WakeSpcaAnimal]:
-        """Get the dogs page and parses it."""
+    async def get_animals(self) -> list[WakeSpcaAnimal]:
+        """Get the Animals from the current website data."""
 
-        html_raw = self.get_html(PETBRIDGE_URL_BASE + ADOPTABLE_DOGS_QUERY_PARAMS)
+        html_raw = await self._get_html(
+            PETBRIDGE_URL_BASE + ADOPTABLE_DOGS_QUERY_PARAMS
+        )
 
-        html_parsed = BeautifulSoup(html_raw, "html5lib")
+        html_parsed = BeautifulSoup(html_raw, "lxml")
 
-        # dogs = []
-        # for entry in html_parsed.find_all("div", {"class": "animal_list_box"}):
-        #     dogs.append(WakeSpcaAnimal(entry))
-        # return dogs
+        parsed_animals = []
 
-        return [
-            WakeSpcaAnimal(entry)
-            for entry in html_parsed.find_all("div", {"class": "animal_list_box"})
-        ]
+        for entry in html_parsed.find_all("div", {"class": "animal_list_box"}):
+            parsed_animals.append(WakeSpcaAnimal(entry))
 
-    def _get_html(self, url):
-        """Get the HTML for the specified URL."""
+        return parsed_animals
 
-        response = requests.get(url, timeout=10)
+    async def _get_html(self, url: str) -> str:
+        """Get the HTML from the given URL."""
 
-        if response.status_code != 200:
-            raise InvalidConfigData(
-                "Failed to fetch html: %d %s" % (response.status_code, response.reason)
-            )
+        # response = requests.get(url)
+        # if response.status_code != 200:
+        #     raise Exception(
+        #         "Failed to fetch html: %d %s" % (response.status_code, response.reason)
+        #     )
+        # return response.text
 
-        return response.text
+        _LOGGER.info(url)
+        async with aiohttp.ClientSession() as session, session.get(url) as response:
+            _LOGGER.info(response.status)
+            if response.status != 200:
+                raise Exception(
+                    "Failed to fetch html: %d %s"
+                    % (response.status_code, response.reason)
+                )
+            return await response.text()
 
-    def get_dogs(self) -> list[WakeSpcaAnimal]:
-        """Get all the dogs on the page."""
 
-        adoptable_dogs = self._get_dogs_page(ADOPTABLE_DOGS_QUERY_PARAMS)
+####################################################################################################
 
-        for dog in adoptable_dogs:
-            foster_care = ""
-            if dog.foster_care:
-                foster_care = "foster care"
 
-            adoption_pending = ""
-            if dog.adoption_pending:
-                adoption_pending = "adoption pending"
+# async def main():
+#     """Main Entry Point."""
 
-            s = "%-20s | %12s | %s" % (dog.name, foster_care, adoption_pending)
-            _LOGGER.debug(s)
+#     adoptable_animals = await WakeSpca.get_animals(ADOPTABLE_DOGS_QUERY_PARAMS)
 
-        return
+#     for animal in adoptable_animals:
+
+#         foster_care_pretty = ""
+#         if animal.foster_care:
+#             foster_care_pretty = "foster care"
+
+#         adoption_pending_pretty = ""
+#         if animal.adoption_pending:
+#             adoption_pending_pretty = "adoption pending"
+
+#         print("%-20s | %12s | %s" % (animal.name, foster_care_pretty, adoption_pending_pretty))
+
+#     return
+
+
+# if __name__ == "__main__":
+#     s = time.perf_counter()
+#     asyncio.run(main())
+#     elapsed = time.perf_counter() - s
+#     print(f"{__file__} executed in {elapsed:0.2f} seconds.")

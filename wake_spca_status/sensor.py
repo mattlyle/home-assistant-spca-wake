@@ -1,61 +1,36 @@
-"""Platform for sensor integration."""
+"""Sensor platform for Wake SPCA Status integration."""
 
-from __future__ import annotations
-
+from datetime import timedelta
 import logging
+from typing import Any
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorEntity,
-    SensorStateClass,
-)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+
+from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, WAKE_SPCA_STATUS_COORDINATOR
+from .coordinator import WakeSpcaStatusCoordinator
+from .wakespca import WakeSpcaAnimal
 
 _LOGGER = logging.getLogger(__name__)
-
-
-def setup_platform(
-    hass: HomeAssistant,
-    config: ConfigType,
-    add_entities: AddEntitiesCallback,
-    discovery_info: DiscoveryInfoType | None = None,
-) -> None:
-    """Set up the sensor platform."""
-
-    _LOGGER.debug("Running setup_platform")
-
-    add_entities([WakeSpcaStatusSensor()])
-
-
-class WakeSpcaStatusSensor(SensorEntity):
-    """Representation of a Sensor."""
-
-    _attr_name = "Example Temperature"
-    _attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
-    _attr_device_class = SensorDeviceClass.TEMPERATURE
-    _attr_state_class = SensorStateClass.MEASUREMENT
-
-    def update(self) -> None:
-        """Fetch new state data for the sensor.
-
-        This is the only method that should fetch new data for Home Assistant.
-        """
-        self._attr_native_value = 23
 
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Add WundergroundPWS entities from a config_entry."""
+    """Set Up Wake SPCA Status Sensor Entities."""
+
+    _LOGGER.info(">>> async_setup_entry")  # TODO remove
+
+    coordinator: WakeSpcaStatusCoordinator = hass.data[DOMAIN][entry.entry_id][
+        WAKE_SPCA_STATUS_COORDINATOR
+    ]
+
+    _LOGGER.info(f"Seeing {len(coordinator.animals)} animals")
 
     sensors = []
-
-    _LOGGER.debug("... async_setup_entry")
-
-    # TODO add sensor
+    for animal in coordinator.animals:
+        _LOGGER.info(">>> Add")
 
     async_add_entities(sensors)

@@ -12,7 +12,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import config_validation as cv
 
-from .const import CONF_ANIMAL_NAMES, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CONF_ANIMAL_NAMES,
+    CONF_REFRESH_INTERVAL,
+    DEFAULT_REFRESH_INTERVAL,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,20 +25,20 @@ CONFIG_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ANIMAL_NAMES): cv.string,
         vol.Required(
-            CONF_SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL
+            CONF_REFRESH_INTERVAL, default=DEFAULT_REFRESH_INTERVAL
         ): cv.positive_int,
     }
 )
 
 
-async def validate_scan_interval(hass: HomeAssistant, scan_interval: int) -> None:
-    """Validate the scan interval."""
+async def validate_refresh_interval(hass: HomeAssistant, refresh_interval: int) -> None:
+    """Validate the refresh interval."""
 
-    if scan_interval < 15 or scan_interval > 24 * 60:
-        raise HomeAssistantError(f"Invalid IP address: {scan_interval}")
+    if refresh_interval < 15 or refresh_interval > 24 * 60:
+        raise HomeAssistantError(f"Invalid refresh interval: {refresh_interval}")
 
 
-class WakeSpcaConfigFlow(ConfigFlow, domain=DOMAIN):
+class WakeSpcaStatusConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for the Wake SPCA integration."""
 
     VERSION = 1
@@ -51,24 +56,24 @@ class WakeSpcaConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         animal_names = user_input[CONF_ANIMAL_NAMES]
-        scan_interval = user_input[CONF_SCAN_INTERVAL]
+        refresh_interval = user_input[CONF_REFRESH_INTERVAL]
 
         self._async_abort_entries_match(
-            {CONF_ANIMAL_NAMES: animal_names, CONF_SCAN_INTERVAL: scan_interval}
+            {CONF_ANIMAL_NAMES: animal_names, CONF_REFRESH_INTERVAL: refresh_interval}
         )
 
         try:
-            await validate_scan_interval(self.hass, scan_interval)
+            await validate_refresh_interval(self.hass, refresh_interval)
         except Exception:
             _LOGGER.exception("Unexpected exception")
-            errors[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
+            errors[CONF_REFRESH_INTERVAL] = DEFAULT_REFRESH_INTERVAL
         else:
             return self.async_create_entry(
                 title=DOMAIN,  # TODO is this correct?
                 data={
                     **user_input,
                     CONF_ANIMAL_NAMES: "",
-                    CONF_SCAN_INTERVAL: DEFAULT_SCAN_INTERVAL,
+                    CONF_REFRESH_INTERVAL: DEFAULT_REFRESH_INTERVAL,
                 },
             )
 
@@ -97,28 +102,28 @@ class WakeSpcaConfigFlow(ConfigFlow, domain=DOMAIN):
             )
 
         updated_animal_names = user_input[CONF_ANIMAL_NAMES]
-        updated_scan_interval = user_input[CONF_SCAN_INTERVAL]
+        updated_refresh_interval = user_input[CONF_REFRESH_INTERVAL]
 
         if (
             entry.data.get(CONF_ANIMAL_NAMES) != updated_animal_names
-            or entry.data.get(CONF_SCAN_INTERVAL) != updated_scan_interval
+            or entry.data.get(CONF_REFRESH_INTERVAL) != updated_refresh_interval
         ):
             self._async_abort_entries_match(user_input)
 
         errors: dict[str, str] = {}
 
         try:
-            await validate_scan_interval(self.hass, updated_scan_interval)
+            await validate_refresh_interval(self.hass, updated_refresh_interval)
         except Exception:
             _LOGGER.exception("Unexpected exception")
-            errors[CONF_SCAN_INTERVAL] = DEFAULT_SCAN_INTERVAL
+            errors[CONF_REFRESH_INTERVAL] = DEFAULT_REFRESH_INTERVAL
         else:
             return self.async_update_reload_and_abort(
                 entry,
                 data={
                     **entry.data,
                     CONF_ANIMAL_NAMES: updated_animal_names,
-                    CONF_SCAN_INTERVAL: updated_scan_interval,
+                    CONF_REFRESH_INTERVAL: updated_refresh_interval,
                 },
                 reason="reconfigure_successful",
             )
