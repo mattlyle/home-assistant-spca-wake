@@ -1,17 +1,14 @@
 """Sensor platform for Wake SPCA integration."""
 
-from datetime import timedelta
 import logging
-from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, WAKE_SPCA_COORDINATOR
+from .const import DOMAIN, WAKE_SPCA_COORDINATOR
 from .coordinator import WakeSpcaCoordinator
-from .wake_spca import WakeSpcaAnimal
 
 _LOGGER = logging.getLogger(__name__)
 

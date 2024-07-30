@@ -1,3 +1,5 @@
+"""Wake SPCA connection."""
+
 import logging
 
 import aiohttp
@@ -77,7 +79,6 @@ class WakeSpcaClient:
 
         _LOGGER.info(url)
         async with aiohttp.ClientSession() as session, session.get(url) as response:
-            _LOGGER.info(response.status)
             if response.status != 200:
                 raise Exception(
                     "Failed to fetch html: %d %s"
