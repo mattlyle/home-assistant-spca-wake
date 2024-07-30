@@ -1,4 +1,4 @@
-"""WakeSpcaStatus Coordinator."""
+"""Wake SPCA Coordinator."""
 
 from datetime import timedelta
 import logging
@@ -8,12 +8,12 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
-from .wakespca import WakeSpcaAnimal, WakeSpcaClient
+from .wake_spca import WakeSpcaAnimal, WakeSpcaClient
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class WakeSpcaStatusCoordinator(DataUpdateCoordinator):
+class WakeSpcaCoordinator(DataUpdateCoordinator):
     """My custom coordinator."""
 
     animals: list[WakeSpcaAnimal] = []

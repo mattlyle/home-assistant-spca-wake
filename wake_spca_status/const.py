@@ -1,11 +1,11 @@
-"""Constants for the Wake SPCA Status integration."""
+"""Constants for the Wake SPCA integration."""
 
 import logging
 from typing import Final
 
 from homeassistant.const import Platform
 
-DOMAIN: Final = "wake_spca_status"
+DOMAIN: Final = "wake_spca"
 PLATFORMS = [
     Platform.SENSOR,
 ]
@@ -20,4 +20,4 @@ DEFAULT_REFRESH_INTERVAL: Final = 60
 DEFAULT_SCAN_INTERVAL: Final = 60
 
 UPDATE_LISTENER: Final = "update_listener"
-WAKE_SPCA_STATUS_COORDINATOR: Final = "wake_spca_status_coordinator"
+WAKE_SPCA_COORDINATOR: Final = "wake_spca_coordinator"

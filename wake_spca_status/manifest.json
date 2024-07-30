@@ -1,15 +1,18 @@
 {
-  "domain": "wake_spca_status",
-  "name": "Wake SPCA Status",
+  "domain": "wake_spca",
+  "name": "Wake SPCA",
   "codeowners": [
     "@mattlyle"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://www.home-assistant.io/integrations/wake_spca_status",
+  "documentation": "https://www.home-assistant.io/integrations/wake_spca",
   "homekit": {},
   "iot_class": "cloud_polling",
-  "requirements": ["beautifulsoup4>=4.12.3", "lxml>=5.1.0"],
+  "requirements": [
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.1.0"
+  ],
   "ssdp": [],
   "zeroconf": []
 }

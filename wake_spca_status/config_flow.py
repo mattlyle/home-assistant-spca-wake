@@ -38,7 +38,7 @@ async def validate_refresh_interval(hass: HomeAssistant, refresh_interval: int) 
         raise HomeAssistantError(f"Invalid refresh interval: {refresh_interval}")
 
 
-class WakeSpcaStatusConfigFlow(ConfigFlow, domain=DOMAIN):
+class WakeSpcaConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for the Wake SPCA integration."""
 
     VERSION = 1
