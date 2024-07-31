@@ -1,8 +1,8 @@
 {
-    "name": "WakeSPCA",
+    "name": "SPCA of Wake County",
     "render_readme": true,
     "country": "US",
     "homeassistant": "2023.12.0",
     "zip_release": true,
-    "filename": "wake_spca.zip"
+    "filename": "spca_wake.zip"
 }
