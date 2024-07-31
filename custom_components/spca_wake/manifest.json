@@ -1,12 +1,12 @@
 {
-  "domain": "wake_spca",
-  "name": "Wake SPCA",
+  "domain": "spca_wake",
+  "name": "SPCA of Wake County",
   "codeowners": [
     "@mattlyle"
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://www.home-assistant.io/integrations/wake_spca",
+  "documentation": "https://github.com/mattlyle/home-assistant-spca-wake/blob/main/README.md",
   "homekit": {},
   "iot_class": "cloud_polling",
   "requirements": [
@@ -14,5 +14,6 @@
     "lxml>=5.1.0"
   ],
   "ssdp": [],
-  "zeroconf": []
+  "zeroconf": [],
+  "version":"0.0.1"
 }

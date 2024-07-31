@@ -1,23 +1,23 @@
-"""Wake SPCA init."""
+"""SPCA Wake init."""
 
 import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, PLATFORMS, UPDATE_LISTENER, WAKE_SPCA_COORDINATOR
-from .coordinator import WakeSpcaCoordinator
+from .const import DOMAIN, PLATFORMS, SPCA_WAKE_COORDINATOR, UPDATE_LISTENER
+from .coordinator import SpcaWakeCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Wake SPCA from a config entry."""
+    """Set up SPCA Wake from a config entry."""
 
-    coordinator = WakeSpcaCoordinator(hass, entry)
+    coordinator = SpcaWakeCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
-        WAKE_SPCA_COORDINATOR: coordinator
+        SPCA_WAKE_COORDINATOR: coordinator
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)

@@ -1,11 +1,11 @@
-"""Constants for the Wake SPCA integration."""
+"""Constants for the SPCA Wake integration."""
 
 import logging
 from typing import Final
 
 from homeassistant.const import Platform
 
-DOMAIN: Final = "wake_spca"
+DOMAIN: Final = "spca_wake"
 PLATFORMS = [
     Platform.SENSOR,
 ]
@@ -16,4 +16,4 @@ CONF_ANIMAL_NAMES: Final = "animal_names"
 CONF_SENSOR_ATTRIBUTION: Final = "Data from spcawake.org"
 
 UPDATE_LISTENER: Final = "update_listener"
-WAKE_SPCA_COORDINATOR: Final = "wake_spca_coordinator"
+SPCA_WAKE_COORDINATOR: Final = "spca_wake_coordinator"

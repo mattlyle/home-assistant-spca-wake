@@ -21,8 +21,8 @@ CONFIG_SCHEMA = vol.Schema(
 )
 
 
-class WakeSpcaConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for the Wake SPCA integration."""
+class SpcaWakeConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for the SPCA Wake integration."""
 
     VERSION = 1
 
@@ -48,7 +48,7 @@ class WakeSpcaConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_reconfigure(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Handle reconfiguration of the Wake SPCA config."""
+        """Handle reconfiguration of the SPCA Wake config."""
 
         entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         assert entry

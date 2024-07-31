@@ -1,4 +1,4 @@
-"""Wake SPCA Coordinator."""
+"""SPCA Wake Coordinator."""
 
 from datetime import timedelta
 import logging
@@ -8,21 +8,21 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
-from .wake_spca import WakeSpcaAnimal, WakeSpcaClient
+from .spca_wake_web import SpcaWakeAnimal, SpcaWakeClient
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class WakeSpcaCoordinator(DataUpdateCoordinator):
+class SpcaWakeCoordinator(DataUpdateCoordinator):
     """My custom coordinator."""
 
-    animals: dict[str, WakeSpcaAnimal] = {}
+    animals: dict[str, SpcaWakeAnimal] = {}
 
     def __init__(self, hass: HomeAssistant, my_api: Any) -> None:
         """Initialize the coordinator."""
 
         self.my_api = my_api
-        self.client = WakeSpcaClient()
+        self.client = SpcaWakeClient()
 
         super().__init__(
             hass,
@@ -32,8 +32,8 @@ class WakeSpcaCoordinator(DataUpdateCoordinator):
             always_update=True,
         )
 
-    async def _async_update_data(self) -> list[WakeSpcaAnimal]:
-        """Fetch data from Wake SPCA Website."""
+    async def _async_update_data(self) -> list[SpcaWakeAnimal]:
+        """Fetch data from SPCA Wake Website."""
 
         _LOGGER.warning("Fetching animals from spcawake.org")  # TODO remove
 

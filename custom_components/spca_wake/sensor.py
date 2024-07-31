@@ -1,10 +1,9 @@
-"""Sensor platform for Wake SPCA integration."""
+"""Sensor platform for SPCA Wake integration."""
 
 import logging
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
@@ -12,9 +11,9 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, WAKE_SPCA_COORDINATOR, CONF_ANIMAL_NAMES
-from .coordinator import WakeSpcaCoordinator
-from .wake_spca import WakeSpcaAnimal
+from .const import CONF_ANIMAL_NAMES, DOMAIN, SPCA_WAKE_COORDINATOR
+from .coordinator import SpcaWakeCoordinator
+from .spca_wake_web import SpcaWakeAnimal
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,10 +21,10 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Set Up Wake SPCA Sensor Entities."""
+    """Set Up SPCA Wake Sensor Entities."""
 
-    coordinator: WakeSpcaCoordinator = hass.data[DOMAIN][entry.entry_id][
-        WAKE_SPCA_COORDINATOR
+    coordinator: SpcaWakeCoordinator = hass.data[DOMAIN][entry.entry_id][
+        SPCA_WAKE_COORDINATOR
     ]
 
     target_animal_names_split = entry.data[CONF_ANIMAL_NAMES].split(",")
@@ -35,15 +34,15 @@ async def async_setup_entry(
         for target_animal_name in target_animal_names_split:
             if animal_name.lower() == target_animal_name.strip().lower():
                 sensors.append(
-                    WakeSpcaAnimalAdoptionPendingSensor(coordinator, animal_name)
+                    SpcaWakeAnimalAdoptionPendingSensor(coordinator, animal_name)
                 )
-                sensors.append(WakeSpcaAnimalInFosterSensor(coordinator, animal_name))
+                sensors.append(SpcaWakeAnimalInFosterSensor(coordinator, animal_name))
 
     async_add_entities(sensors)
 
 
-class WakeSpcaAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
-    """Wake SPCA Animal Sensor for Adoption Pending."""
+class SpcaWakeAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
+    """SPCA Wake Animal Sensor for Adoption Pending."""
 
     def __init__(self, coordinator, animal_name) -> None:
         """Initialize the Sensor."""
@@ -52,7 +51,7 @@ class WakeSpcaAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
         self.animal_name = animal_name
 
     @property
-    def animal_data(self) -> WakeSpcaAnimal:
+    def animal_data(self) -> SpcaWakeAnimal:
         """Gets the animal data."""
 
         return self.coordinator.animals[self.animal_name]
@@ -72,7 +71,7 @@ class WakeSpcaAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
                 "identifiers": {(DOMAIN, self.animal_name)},
                 "name": self.animal_name,
                 "configuration_url": "https://www.spcawake.org",
-                "manufacturer": "WakeSPCA",
+                "manufacturer": "SpcaWake",
                 "model": "Dog",  # TODO should come from the data
             }
         )
@@ -123,8 +122,8 @@ class WakeSpcaAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
         return EntityCategory.DIAGNOSTIC
 
 
-class WakeSpcaAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
-    """Wake SPCA Animal Sensor for In Foster Care."""
+class SpcaWakeAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
+    """SPCA Wake Animal Sensor for In Foster Care."""
 
     def __init__(self, coordinator, animal_name) -> None:
         """Initialize the Sensor."""
@@ -133,7 +132,7 @@ class WakeSpcaAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
         self.animal_name = animal_name
 
     @property
-    def animal_data(self) -> WakeSpcaAnimal:
+    def animal_data(self) -> SpcaWakeAnimal:
         """Gets the animal data."""
 
         return self.coordinator.animals[self.animal_name]
@@ -153,7 +152,7 @@ class WakeSpcaAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
                 "identifiers": {(DOMAIN, self.animal_name)},
                 "name": self.animal_name,
                 "configuration_url": "https://www.spcawake.org",
-                "manufacturer": "WakeSPCA",
+                "manufacturer": "SpcaWake",
                 "model": "Dog",  # TODO should come from the data
             }
         )
@@ -204,5 +203,5 @@ class WakeSpcaAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
         return EntityCategory.DIAGNOSTIC
 
 
-class WakeSpcaAnimalAdoptedSensor(CoordinatorEntity, SensorEntity):
-    """Wake SPCA Animal Sensor for Adopted."""
+class SpcaWakeAnimalAdoptedSensor(CoordinatorEntity, SensorEntity):
+    """SPCA Wake Animal Sensor for Adopted."""
