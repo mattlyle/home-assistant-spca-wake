@@ -5,6 +5,8 @@ import logging
 import aiohttp
 from bs4 import BeautifulSoup
 
+from homeassistant.exceptions import HomeAssistantError
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -14,7 +16,6 @@ PETBRIDGE_URL_BASE = "https://petbridge.org/animals/animals-all-responsive.php"
 
 ADOPTABLE_DOGS_QUERY_PARAMS = "?ClientID=24&Species=Dog"
 RECENTLY_ADOPTED_DOGS_QUERY_PARAMS = "?ClientID=24&Species=Dog&Status=Adopted"
-
 
 ####################################################################################################
 
@@ -30,7 +31,7 @@ class SpcaWakeAnimal:
             "span", attrs={"class": "results_animal_name"}
         )
         if not animal_name_node:
-            raise Exception("Animal name node not found")
+            raise HomeAssistantError("Animal name node not found")
         self.name = animal_name_node.text
 
         # foster care
@@ -46,6 +47,10 @@ class SpcaWakeAnimal:
         self.adoption_pending = (
             adoption_pending_node and "adoption pending" in adoption_pending_node.text
         )
+        self.is_adopted = (
+            adoption_pending_node
+            and "already been adopted" in adoption_pending_node.text
+        )
 
 
 class SpcaWakeClient:
@@ -54,16 +59,32 @@ class SpcaWakeClient:
     async def get_animals(self) -> list[SpcaWakeAnimal]:
         """Get the Animals from the current website data."""
 
-        html_raw = await self._get_html(
-            PETBRIDGE_URL_BASE + ADOPTABLE_DOGS_QUERY_PARAMS
+        animals: list[SpcaWakeAnimal] = []
+
+        # add the available dogs
+        animals.extend(
+            await self._parse_page(PETBRIDGE_URL_BASE + ADOPTABLE_DOGS_QUERY_PARAMS)
         )
 
+        # add the recently adopted dogs
+        animals.extend(
+            await self._parse_page(
+                PETBRIDGE_URL_BASE + RECENTLY_ADOPTED_DOGS_QUERY_PARAMS
+            )
+        )
+
+        return animals
+
+    async def _parse_page(self, url: str) -> list[SpcaWakeAnimal]:
+        """Fetch and parses a page of animal results."""
+
+        html_raw = await self._get_html(url)
         html_parsed = BeautifulSoup(html_raw, "lxml")
 
         parsed_animals = []
 
         for entry in html_parsed.find_all("div", {"class": "animal_list_box"}):
-            parsed_animals.append(SpcaWakeAnimal(entry))
+            parsed_animals.append(SpcaWakeAnimal(entry))  # noqa: PERF401
 
         return parsed_animals
 
@@ -80,7 +101,7 @@ class SpcaWakeClient:
         _LOGGER.info(url)
         async with aiohttp.ClientSession() as session, session.get(url) as response:
             if response.status != 200:
-                raise Exception(
+                raise HomeAssistantError(
                     "Failed to fetch html: %d %s"
                     % (response.status_code, response.reason)
                 )
@@ -88,30 +109,3 @@ class SpcaWakeClient:
 
 
 ####################################################################################################
-
-
-# async def main():
-#     """Main Entry Point."""
-
-#     adoptable_animals = await SpcaWake.get_animals(ADOPTABLE_DOGS_QUERY_PARAMS)
-
-#     for animal in adoptable_animals:
-
-#         foster_care_pretty = ""
-#         if animal.foster_care:
-#             foster_care_pretty = "foster care"
-
-#         adoption_pending_pretty = ""
-#         if animal.adoption_pending:
-#             adoption_pending_pretty = "adoption pending"
-
-#         print("%-20s | %12s | %s" % (animal.name, foster_care_pretty, adoption_pending_pretty))
-
-#     return
-
-
-# if __name__ == "__main__":
-#     s = time.perf_counter()
-#     asyncio.run(main())
-#     elapsed = time.perf_counter() - s
-#     print(f"{__file__} executed in {elapsed:0.2f} seconds.")
