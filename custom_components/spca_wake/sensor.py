@@ -30,7 +30,7 @@ async def async_setup_entry(
     target_animal_names_split = entry.data[CONF_ANIMAL_NAMES].split(",")
 
     sensors = []
-    for animal_name in coordinator.animals.keys():
+    for animal_name in coordinator.animals:
         for target_animal_name in target_animal_names_split:
             if animal_name.lower() == target_animal_name.strip().lower():
                 sensors.append(
