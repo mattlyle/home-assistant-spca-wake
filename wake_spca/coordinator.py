@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 class WakeSpcaCoordinator(DataUpdateCoordinator):
     """My custom coordinator."""
 
-    animals: list[WakeSpcaAnimal] = []
+    animals: dict[str, WakeSpcaAnimal] = {}
 
     def __init__(self, hass: HomeAssistant, my_api: Any) -> None:
         """Initialize the coordinator."""
@@ -35,7 +35,7 @@ class WakeSpcaCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> list[WakeSpcaAnimal]:
         """Fetch data from Wake SPCA Website."""
 
-        _LOGGER.info("Fetching animals from wakespca.org")  # TODO remove
+        _LOGGER.warning("Fetching animals from spcawake.org")  # TODO remove
 
         try:
             animals = await self.client.get_animals()
@@ -44,5 +44,9 @@ class WakeSpcaCoordinator(DataUpdateCoordinator):
 
         if len(animals) == 0:
             raise UpdateFailed("No animals found")
+
+        self.animals = {}
+        for animal in animals:
+            self.animals[animal.name] = animal
 
         return animals

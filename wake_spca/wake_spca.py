@@ -49,7 +49,7 @@ class WakeSpcaAnimal:
 
 
 class WakeSpcaClient:
-    """Handle all data pulls from wakespca.org."""
+    """Handle all data pulls from spcawake.org."""
 
     async def get_animals(self) -> list[WakeSpcaAnimal]:
         """Get the Animals from the current website data."""
