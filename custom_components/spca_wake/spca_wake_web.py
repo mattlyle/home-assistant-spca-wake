@@ -46,6 +46,10 @@ class SpcaWakeAnimal:
         self.adoption_pending = (
             adoption_pending_node and "adoption pending" in adoption_pending_node.text
         )
+        self.is_adopted = (
+            adoption_pending_node
+            and "already been adopted" in adoption_pending_node.text
+        )
 
 
 class SpcaWakeClient:
@@ -54,10 +58,26 @@ class SpcaWakeClient:
     async def get_animals(self) -> list[SpcaWakeAnimal]:
         """Get the Animals from the current website data."""
 
-        html_raw = await self._get_html(
-            PETBRIDGE_URL_BASE + ADOPTABLE_DOGS_QUERY_PARAMS
+        animals: list[SpcaWakeAnimal] = []
+
+        # add the available dogs
+        animals.extend(
+            await self._parse_page(PETBRIDGE_URL_BASE + ADOPTABLE_DOGS_QUERY_PARAMS)
         )
 
+        # add the recently adopted dogs
+        animals.extend(
+            await self._parse_page(
+                PETBRIDGE_URL_BASE + RECENTLY_ADOPTED_DOGS_QUERY_PARAMS
+            )
+        )
+
+        return animals
+
+    async def _parse_page(self, url: str) -> list[SpcaWakeAnimal]:
+        """Fetch and parses a page of animal results."""
+
+        html_raw = await self._get_html(url)
         html_parsed = BeautifulSoup(html_raw, "lxml")
 
         parsed_animals = []
@@ -88,30 +108,3 @@ class SpcaWakeClient:
 
 
 ####################################################################################################
-
-
-# async def main():
-#     """Main Entry Point."""
-
-#     adoptable_animals = await SpcaWake.get_animals(ADOPTABLE_DOGS_QUERY_PARAMS)
-
-#     for animal in adoptable_animals:
-
-#         foster_care_pretty = ""
-#         if animal.foster_care:
-#             foster_care_pretty = "foster care"
-
-#         adoption_pending_pretty = ""
-#         if animal.adoption_pending:
-#             adoption_pending_pretty = "adoption pending"
-
-#         print("%-20s | %12s | %s" % (animal.name, foster_care_pretty, adoption_pending_pretty))
-
-#     return
-
-
-# if __name__ == "__main__":
-#     s = time.perf_counter()
-#     asyncio.run(main())
-#     elapsed = time.perf_counter() - s
-#     print(f"{__file__} executed in {elapsed:0.2f} seconds.")
