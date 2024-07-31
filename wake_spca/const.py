@@ -13,12 +13,7 @@ PLATFORMS = [
 LOGGER: Final = logging.getLogger(__package__)
 
 CONF_ANIMAL_NAMES: Final = "animal_names"
-CONF_REFRESH_INTERVAL: Final = "refresh_interval"
 CONF_SENSOR_ATTRIBUTION: Final = "Data from spcawake.org"
-
-DEFAULT_REFRESH_INTERVAL: Final = 60
-
-DEFAULT_SCAN_INTERVAL: Final = 30
 
 UPDATE_LISTENER: Final = "update_listener"
 WAKE_SPCA_COORDINATOR: Final = "wake_spca_coordinator"

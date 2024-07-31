@@ -5,14 +5,12 @@
         },
         "error": {
             "cannot_connect": "Failed to connect",
-            "invalid_auth": "Invalid authentication",
             "unknown": "Unexpected error"
         },
         "step": {
             "user": {
                 "data": {
-                    "animal_names": "Animal names (comma separated)",
-                    "scan_interval": "Scan interval (in minutes)"
+                    "animal_names": "Animal names (comma separated)"
                 }
             }
         }

@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import DOMAIN
 from .wake_spca import WakeSpcaAnimal, WakeSpcaClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class WakeSpcaCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
+            update_interval=timedelta(seconds=60 * 15),
             always_update=True,
         )
 
