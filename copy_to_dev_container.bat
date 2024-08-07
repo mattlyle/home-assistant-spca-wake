@@ -2,6 +2,8 @@
 
 echo Using container: %1
 
+docker exec -it -u root %1 mkdir /workspaces/homeassistant-core/homeassistant/components/spca_wake
+
 docker cp custom_components/spca_wake/spca_wake_web.py %1:/workspaces/homeassistant-core/homeassistant/components/spca_wake/
 docker cp custom_components/spca_wake/__init__.py %1:/workspaces/homeassistant-core/homeassistant/components/spca_wake/
 docker cp custom_components/spca_wake/config_flow.py %1:/workspaces/homeassistant-core/homeassistant/components/spca_wake/
