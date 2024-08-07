@@ -10,13 +10,20 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers import config_validation as cv
 
-from .const import CONF_ANIMAL_NAMES, DOMAIN
+from .const import (
+    CONF_ANIMAL_NAMES,
+    CONF_PETFINDER_API_KEY,
+    CONF_PETFINDER_SECRET,
+    DOMAIN,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ANIMAL_NAMES): cv.string,
+        vol.Required(CONF_PETFINDER_API_KEY): cv.string,
+        vol.Required(CONF_PETFINDER_SECRET): cv.string,
     }
 )
 
@@ -24,7 +31,7 @@ CONFIG_SCHEMA = vol.Schema(
 class SpcaWakeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for the SPCA Wake integration."""
 
-    VERSION = 1
+    VERSION = 2
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -37,12 +44,25 @@ class SpcaWakeConfigFlow(ConfigFlow, domain=DOMAIN):
             )
 
         animal_names = user_input[CONF_ANIMAL_NAMES]
+        petfinder_api_key = user_input[CONF_PETFINDER_API_KEY]
+        petfinder_secret = user_input[CONF_PETFINDER_SECRET]
 
-        self._async_abort_entries_match({CONF_ANIMAL_NAMES: animal_names})
+        self._async_abort_entries_match(
+            {
+                CONF_ANIMAL_NAMES: animal_names,
+                CONF_PETFINDER_API_KEY: petfinder_api_key,
+                CONF_PETFINDER_SECRET: petfinder_secret,
+            }
+        )
 
         return self.async_create_entry(
             title=DOMAIN,
-            data={**user_input, CONF_ANIMAL_NAMES: ""},
+            data={
+                **user_input,
+                CONF_ANIMAL_NAMES: animal_names,
+                CONF_PETFINDER_API_KEY: petfinder_api_key,
+                CONF_PETFINDER_SECRET: petfinder_secret,
+            },
         )
 
     async def async_step_reconfigure(
@@ -64,15 +84,24 @@ class SpcaWakeConfigFlow(ConfigFlow, domain=DOMAIN):
             )
 
         updated_animal_names = user_input[CONF_ANIMAL_NAMES]
+        updated_petfinder_api_key = user_input[CONF_PETFINDER_API_KEY]
+        updated_petfinder_secret = user_input[CONF_PETFINDER_SECRET]
 
-        if entry.data.get(CONF_ANIMAL_NAMES) != updated_animal_names:
-            self._async_abort_entries_match(user_input)
+        self._async_abort_entries_match(
+            {
+                CONF_ANIMAL_NAMES: updated_animal_names,
+                CONF_PETFINDER_API_KEY: updated_petfinder_api_key,
+                CONF_PETFINDER_SECRET: updated_petfinder_secret,
+            }
+        )
 
         return self.async_update_reload_and_abort(
             entry,
             data={
                 **entry.data,
                 CONF_ANIMAL_NAMES: updated_animal_names,
+                CONF_PETFINDER_API_KEY: updated_petfinder_api_key,
+                CONF_PETFINDER_SECRET: updated_petfinder_secret,
             },
             reason="reconfigure_successful",
         )

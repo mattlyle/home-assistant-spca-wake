@@ -33,13 +33,19 @@ async def async_setup_entry(
     for animal_name in coordinator.animals:
         for target_animal_name in target_animal_names_split:
             if animal_name.lower() == target_animal_name.strip().lower():
-                sensors.append(
-                    SpcaWakeAnimalAdoptionPendingSensor(coordinator, animal_name)
+                sensors.extend(
+                    (
+                        SpcaWakeAnimalAdoptionPendingSensor(coordinator, animal_name),
+                        SpcaWakeAnimalInFosterSensor(coordinator, animal_name),
+                        SpcaWakeAnimalOnSleepoverSensor(coordinator, animal_name),
+                        SpcaWakeAnimalIsAdoptedSensor(coordinator, animal_name),
+                    )
                 )
-                sensors.append(SpcaWakeAnimalInFosterSensor(coordinator, animal_name))
-                sensors.append(SpcaWakeAnimalIsAdoptedSensor(coordinator, animal_name))
 
     async_add_entities(sensors)
+
+
+################################################################################
 
 
 class SpcaWakeAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
@@ -123,6 +129,9 @@ class SpcaWakeAnimalAdoptionPendingSensor(CoordinatorEntity, SensorEntity):
         return EntityCategory.DIAGNOSTIC
 
 
+################################################################################
+
+
 class SpcaWakeAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
     """SPCA Wake Animal Sensor for In Foster Care."""
 
@@ -202,6 +211,93 @@ class SpcaWakeAnimalInFosterSensor(CoordinatorEntity, SensorEntity):
     def entity_category(self) -> EntityCategory:
         """Set category to diagnostic."""
         return EntityCategory.DIAGNOSTIC
+
+
+################################################################################
+
+
+class SpcaWakeAnimalOnSleepoverSensor(CoordinatorEntity, SensorEntity):
+    """SPCA Wake Animal Sensor for On Sleepover."""
+
+    def __init__(self, coordinator, animal_name) -> None:
+        """Initialize the Sensor."""
+
+        super().__init__(coordinator)
+        self.animal_name = animal_name
+
+    @property
+    def animal_data(self) -> SpcaWakeAnimal:
+        """Gets the animal data."""
+
+        return self.coordinator.animals[self.animal_name]
+
+    @property
+    def device_data(self) -> dict[str, Any]:
+        """Handle coordinator device data."""
+
+        return self.coordinator.animals[self.animal_name].device
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device registry information for this entity."""
+
+        return DeviceInfo(
+            {
+                "identifiers": {(DOMAIN, self.animal_name)},
+                "name": self.animal_name,
+                "configuration_url": "https://www.spcawake.org",
+                "manufacturer": "SpcaWake",
+                "model": "Dog",  # TODO should come from the data
+            }
+        )
+
+    @property
+    def unique_id(self) -> str:
+        """Sets unique ID for this entity."""
+
+        return str(self.animal_name) + "_on_sleepover"
+
+        # TODO should fix spaces and characters
+
+    @property
+    def name(self) -> str:
+        """Return name of the entity."""
+
+        return "On Sleepover"
+
+    @property
+    def has_entity_name(self) -> bool:
+        """Indicate that entity has name defined."""
+
+        return True
+
+    @property
+    def icon(self) -> str:
+        """Set icon for entity."""
+
+        return "mdi:test-tube"
+
+    @property
+    def native_value(self) -> str:
+        """Return if the animal is on a sleepover."""
+
+        if self.coordinator.animals[self.animal_name].on_sleepover:
+            return "Yes"
+
+        return "No"
+
+    @property
+    def device_class(self) -> SensorDeviceClass:
+        """Return entity device class."""
+        return SensorDeviceClass.ENUM
+
+    @property
+    def entity_category(self) -> EntityCategory:
+        """Set category to diagnostic."""
+        return EntityCategory.DIAGNOSTIC
+
+
+################################################################################
 
 
 class SpcaWakeAnimalIsAdoptedSensor(CoordinatorEntity, SensorEntity):

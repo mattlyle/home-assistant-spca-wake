@@ -2,12 +2,12 @@
 
 from datetime import timedelta
 import logging
-from typing import Any
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN
+from .const import CONF_PETFINDER_API_KEY, CONF_PETFINDER_SECRET, DOMAIN
 from .spca_wake_web import SpcaWakeAnimal, SpcaWakeClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -18,12 +18,12 @@ class SpcaWakeCoordinator(DataUpdateCoordinator):
 
     animals: dict[str, SpcaWakeAnimal] = {}
 
-    def __init__(self, hass: HomeAssistant, my_api: Any) -> None:
+    def __init__(self, hass: HomeAssistant, config: ConfigEntry) -> None:
         """Initialize the coordinator."""
 
-        self.my_api = my_api
-        self.client = SpcaWakeClient()
-
+        self.client = SpcaWakeClient(
+            config.data[CONF_PETFINDER_API_KEY], config.data[CONF_PETFINDER_SECRET]
+        )
         super().__init__(
             hass,
             _LOGGER,
@@ -35,7 +35,7 @@ class SpcaWakeCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self) -> list[SpcaWakeAnimal]:
         """Fetch data from SPCA Wake Website."""
 
-        _LOGGER.warning("Fetching animals from spcawake.org")  # TODO remove
+        _LOGGER.warning("Fetching data from spcawake.org")  # TODO remove
 
         try:
             animals = await self.client.get_animals()
