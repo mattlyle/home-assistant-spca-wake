@@ -13,6 +13,9 @@ PLATFORMS = [
 LOGGER: Final = logging.getLogger(__package__)
 
 CONF_ANIMAL_NAMES: Final = "animal_names"
+CONF_PETFINDER_API_KEY: Final = "petfinder_api_key"
+CONF_PETFINDER_SECRET: Final = "petfinder_secret"
+
 CONF_SENSOR_ATTRIBUTION: Final = "Data from spcawake.org"
 
 UPDATE_LISTENER: Final = "update_listener"

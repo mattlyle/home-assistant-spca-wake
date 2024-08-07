@@ -3,7 +3,9 @@
     "step": {
       "user": {
         "data": {
-          "animal_names": "Animal names (comma separated)"
+          "animal_names": "Animal names (comma separated)",
+          "petfinder_api_key": "Petfinder developer API key",
+          "petfinder_secret": "PetfFinder developer secret"
         }
       }
     },
